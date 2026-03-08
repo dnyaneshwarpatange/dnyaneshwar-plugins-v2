@@ -39,7 +39,7 @@ WORKDIR /app
 #    postinstall ("npx puppeteer browsers install chrome") is safely skipped
 #    because PUPPETEER_SKIP_DOWNLOAD=true is already set above.
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # 5. Copy application source
 COPY . .
