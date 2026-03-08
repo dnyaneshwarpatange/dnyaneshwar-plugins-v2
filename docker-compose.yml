@@ -1,0 +1,36 @@
+version: '3.8'
+
+# ── Local development stack ───────────────────────────────────────────────────
+# Run with:  docker-compose up --build
+#
+# For Render production deployment see render.yaml (MongoDB Atlas is used there,
+# so the 'mongo' service below is only needed for local development).
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atlassian-checker
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/atlassian-compat
+      # Required for Puppeteer to find system Chromium inside the container
+      - PUPPETEER_SKIP_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: atlassian-mongo
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

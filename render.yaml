@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# render.yaml — Render Blueprint for Atlassian Compat Checker
+#
+# Deploy steps:
+#   1. Push this repo to GitHub/GitLab.
+#   2. In Render dashboard → "New Blueprint" → point to this repo.
+#   3. Fill in the MONGO_URI secret (your MongoDB Atlas connection string).
+#   4. Click Deploy.
+#
+# Alternatively you can create a manual "Web Service" on Render and choose
+# "Docker" as the environment — Render will use this Dockerfile automatically.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: atlassian-compat-checker
+    env: docker                      # tells Render to build with the Dockerfile
+    region: oregon                   # change to your preferred region
+    plan: starter                    # upgrade to 'standard' if you need more RAM for Chrome
+
+    # Render builds from the Dockerfile in the repo root
+    dockerfilePath: ./Dockerfile
+
+    # Health-check so Render knows when the container is ready
+    healthCheckPath: /
+
+    envVars:
+      # Port — Render sets $PORT automatically; we echo it here for clarity
+      - key: PORT
+        value: 10000               # Render's default internal port for web services
+
+      # MongoDB Atlas URI — mark as secret so it's never logged
+      - key: MONGO_URI
+        sync: false                # <-- you will paste this value in the Render dashboard
+
+      - key: NODE_ENV
+        value: production
