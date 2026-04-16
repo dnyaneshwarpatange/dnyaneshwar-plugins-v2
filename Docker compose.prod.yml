@@ -1,0 +1,30 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────
+#  PRODUCTION (VPS) — uses pre-built image from Docker Hub
+#
+#  Usage on VPS:
+#    export MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net/atlassian-compat"
+#    export DOCKERHUB_USERNAME="your-dockerhub-username"
+#    docker compose -f docker-compose.prod.yml up -d
+#
+#  OR: create a .env file on the VPS with MONGO_URI and DOCKERHUB_USERNAME set
+# ─────────────────────────────────────────────────────────────────
+
+services:
+  app:
+    image: ${DOCKERHUB_USERNAME}/atlassian-checker:latest
+    container_name: atlassian-checker
+    restart: always
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=${PORT:-3000}
+      - MONGO_URI=${MONGO_URI:?MONGO_URI env variable is required}
+    # Needed so Puppeteer Chrome doesn't need --no-sandbox
+    security_opt:
+      - seccomp=unconfined
+
+volumes:
+  mongo-data:
+    driver: local
